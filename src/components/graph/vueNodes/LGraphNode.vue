@@ -15,7 +15,7 @@
     ]"
     :style="{
       transform: `translate(${position?.x ?? 0}px, ${position?.y ?? 0}px)`,
-      width: size ? `${size.width}px` : '200px',
+      width: size ? `${size.width}px` : '300px',
       height: size ? `${size.height}px` : 'auto',
       backgroundColor: '#353535'
     }"

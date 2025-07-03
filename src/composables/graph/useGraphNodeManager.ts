@@ -7,6 +7,9 @@ import { nextTick, reactive, readonly } from 'vue'
 
 import { useChainCallback } from '@/composables/functional/useChainCallback'
 
+// Additional width to add to Vue nodes to accommodate larger widgets
+const VUE_NODE_WIDTH_ADJUSTMENT = 100
+
 export interface NodeState {
   visible: boolean
   dirty: boolean
@@ -352,7 +355,10 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
           culled: false
         })
         nodePositions.set(id, { x: node.pos[0], y: node.pos[1] })
-        nodeSizes.set(id, { width: node.size[0], height: node.size[1] })
+        nodeSizes.set(id, {
+          width: node.size[0] + VUE_NODE_WIDTH_ADJUSTMENT,
+          height: node.size[1]
+        })
         attachMetadata(node)
       }
     })
@@ -390,10 +396,13 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
 
       if (
         !currentSize ||
-        currentSize.width !== node.size[0] ||
+        currentSize.width !== node.size[0] + VUE_NODE_WIDTH_ADJUSTMENT ||
         currentSize.height !== node.size[1]
       ) {
-        nodeSizes.set(id, { width: node.size[0], height: node.size[1] })
+        nodeSizes.set(id, {
+          width: node.size[0] + VUE_NODE_WIDTH_ADJUSTMENT,
+          height: node.size[1]
+        })
         sizeUpdates++
       }
     }
