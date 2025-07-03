@@ -4,6 +4,7 @@
  */
 import type { LGraph, LGraphNode } from '@comfyorg/litegraph'
 import { nextTick, reactive, readonly } from 'vue'
+
 import { useChainCallback } from '@/composables/functional/useChainCallback'
 
 export interface NodeState {
@@ -115,7 +116,7 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
     frameCount++
     const now = performance.now()
     const elapsed = now - lastFrameTime
-    
+
     if (elapsed >= 1000) {
       performanceMetrics.fps = Math.round((frameCount * 1000) / elapsed)
       performanceMetrics.frameTime = elapsed / frameCount
@@ -126,7 +127,7 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
 
   const startFPSTracking = () => {
     if (fpsUpdateInterval) return
-    
+
     const trackFrame = () => {
       updateFPS()
       fpsUpdateInterval = requestAnimationFrame(trackFrame)
@@ -226,25 +227,26 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
 
   const setupNodeWidgetCallbacks = (node: LGraphNode) => {
     const nodeId = String(node.id)
-    
-    node.widgets?.forEach(widget => {
+
+    node.widgets?.forEach((widget) => {
       widget.callback = useChainCallback(widget.callback, () => {
         try {
           const currentData = vueNodeData.get(nodeId)
           if (currentData?.widgets) {
-            const updatedWidgets = currentData.widgets.map(w => 
-              w.name === widget.name 
-                ? { ...w, value: widget.value }
-                : w
+            const updatedWidgets = currentData.widgets.map((w) =>
+              w.name === widget.name ? { ...w, value: widget.value } : w
             )
-            vueNodeData.set(nodeId, { 
-              ...currentData, 
-              widgets: updatedWidgets 
+            vueNodeData.set(nodeId, {
+              ...currentData,
+              widgets: updatedWidgets
             })
           }
           performanceMetrics.callbackUpdateCount++
         } catch (error) {
-          console.warn(`[useGraphNodeManager] Failed to update Vue state for widget ${widget.name}:`, error)
+          console.warn(
+            `[useGraphNodeManager] Failed to update Vue state for widget ${widget.name}:`,
+            error
+          )
         }
       })
     })
@@ -365,7 +367,7 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
   // Most performant: Direct position sync without re-setting entire node
   const detectChangesInRAF = () => {
     const startTime = performance.now()
-    
+
     if (!graph?._nodes) return
 
     let positionUpdates = 0
@@ -401,9 +403,9 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
     performanceMetrics.updateTime = endTime - startTime
     performanceMetrics.nodeCount = vueNodeData.size
     performanceMetrics.culledCount = Array.from(nodeState.values()).filter(
-      state => state.culled
+      (state) => state.culled
     ).length
-    
+
     if (positionUpdates > 0 || sizeUpdates > 0) {
       performanceMetrics.rafUpdateCount++
     }
@@ -435,9 +437,9 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
       nodePositions.set(id, { x: node.pos[0], y: node.pos[1] })
       nodeSizes.set(id, { width: node.size[0], height: node.size[1] })
       attachMetadata(node)
-      
+
       setupNodeWidgetCallbacks(node)
-      
+
       if (originalOnNodeAdded) {
         void originalOnNodeAdded(node)
       }
@@ -456,7 +458,7 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
 
     // Initial sync
     syncWithGraph()
-    
+
     // Start FPS tracking
     startFPSTracking()
 
@@ -471,7 +473,7 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
         clearTimeout(batchTimeoutId)
         batchTimeoutId = null
       }
-      
+
       // Stop FPS tracking
       stopFPSTracking()
 
