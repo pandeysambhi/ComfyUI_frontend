@@ -8,7 +8,7 @@ import { nextTick, reactive, readonly } from 'vue'
 import { useChainCallback } from '@/composables/functional/useChainCallback'
 
 // Additional width to add to Vue nodes to accommodate larger widgets
-const VUE_NODE_WIDTH_ADJUSTMENT = 100
+const VUE_NODE_WIDTH_ADJUSTMENT = 245
 
 export interface NodeState {
   visible: boolean

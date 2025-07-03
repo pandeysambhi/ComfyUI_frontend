@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col gap-1">
-    <label v-if="widget.name" class="text-sm opacity-80">{{
+  <div class="flex items-center justify-between gap-2 w-full">
+    <label v-if="widget.name" class="text-sm opacity-80 whitespace-nowrap">{{
       widget.name
     }}</label>
     <Select
@@ -8,6 +8,7 @@
       :options="selectOptions"
       v-bind="filteredProps"
       :disabled="readonly"
+      class="flex-1 max-w-[300px]"
     />
   </div>
 </template>
