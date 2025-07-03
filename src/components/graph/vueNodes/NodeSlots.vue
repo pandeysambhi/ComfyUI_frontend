@@ -11,7 +11,7 @@
         :key="`input-${index}`"
         class="text-xs text-gray-300"
       >
-        {{ getInputName(input, index) }} ({{ getInputType(input) }})
+        {{ getInputName(input, index) }}
       </div>
     </div>
 
@@ -22,7 +22,7 @@
         :key="`output-${index}`"
         class="text-xs text-gray-300"
       >
-        {{ getOutputName(output, index) }} ({{ getOutputType(output) }})
+        {{ getOutputName(output, index) }}
       </div>
     </div>
   </div>
