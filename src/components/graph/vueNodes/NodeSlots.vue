@@ -2,25 +2,24 @@
   <div v-if="renderError" class="node-error p-2 text-red-500 text-sm">
     ⚠️ Node Slots Error
   </div>
-  <div v-else class="lg-node-slots">
-    <!-- For now, render slots info as text to see what's there -->
-    <div v-if="nodeInfo?.inputs?.length" class="mb-2">
-      <div class="text-xs text-gray-400 mb-1">Inputs:</div>
+  <div v-else class="lg-node-slots flex justify-between">
+    <!-- Input slots on the left -->
+    <div v-if="nodeInfo?.inputs?.length" class="flex-1">
       <div
         v-for="(input, index) in nodeInfo.inputs"
         :key="`input-${index}`"
-        class="text-xs text-gray-300"
+        class="text-xs text-gray-300 text-left"
       >
         {{ getInputName(input, index) }}
       </div>
     </div>
 
-    <div v-if="nodeInfo?.outputs?.length">
-      <div class="text-xs text-gray-400 mb-1">Outputs:</div>
+    <!-- Output slots on the right -->
+    <div v-if="nodeInfo?.outputs?.length" class="flex-1">
       <div
         v-for="(output, index) in nodeInfo.outputs"
         :key="`output-${index}`"
-        class="text-xs text-gray-300"
+        class="text-xs text-gray-300 text-right"
       >
         {{ getOutputName(output, index) }}
       </div>
@@ -52,19 +51,9 @@ const getInputName = (input: unknown, index: number): string => {
   return inputObj?.name || `Input ${index}`
 }
 
-const getInputType = (input: unknown): string => {
-  const inputObj = input as { type?: string } | null | undefined
-  return inputObj?.type || 'any'
-}
-
 const getOutputName = (output: unknown, index: number): string => {
   const outputObj = output as { name?: string } | null | undefined
   return outputObj?.name || `Output ${index}`
-}
-
-const getOutputType = (output: unknown): string => {
-  const outputObj = output as { type?: string } | null | undefined
-  return outputObj?.type || 'any'
 }
 
 // Error boundary implementation
