@@ -239,7 +239,7 @@ export const useLitegraphService = () => {
         const pad =
           this.widgets?.length &&
           !useSettingStore().get('LiteGraph.Node.DefaultPadding')
-        s[0] = Math.max(this.#initialMinSize.width, s[0] + (pad ? 60 : 0))
+        s[0] = Math.max(this.#initialMinSize.width, s[0] + (pad ? 60 : 0) + 150)
         s[1] = Math.max(this.#initialMinSize.height, s[1])
         this.setSize(s)
       }
@@ -494,7 +494,7 @@ export const useLitegraphService = () => {
         const pad =
           this.widgets?.length &&
           !useSettingStore().get('LiteGraph.Node.DefaultPadding')
-        s[0] = Math.max(this.#initialMinSize.width, s[0] + (pad ? 60 : 0))
+        s[0] = Math.max(this.#initialMinSize.width, s[0] + (pad ? 60 : 0) + 150)
         s[1] = Math.max(this.#initialMinSize.height, s[1])
         this.setSize(s)
       }
