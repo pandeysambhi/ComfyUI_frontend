@@ -30,7 +30,10 @@
     />
 
     <!-- Node Body -->
-    <div class="flex flex-col gap-2 p-2">
+    <div class="flex flex-col gap-2 pb-2 px-2">
+      <!-- Divider between header and slots -->
+      <Divider class="my-0 opacity-50" />
+
       <!-- Slots only update when connections change -->
       <NodeSlots
         v-memo="[nodeData.inputs?.length, nodeData.outputs?.length]"
@@ -38,6 +41,9 @@
         :readonly="readonly"
         @slot-click="handleSlotClick"
       />
+
+      <!-- Divider slots and widgets -->
+      <Divider class="my-0 opacity-50" />
 
       <!-- Widgets update on value changes -->
       <NodeWidgets
@@ -73,6 +79,7 @@
 </template>
 
 <script setup lang="ts">
+import Divider from 'primevue/divider'
 import { computed, onErrorCaptured, ref } from 'vue'
 
 // Import the VueNodeData type
