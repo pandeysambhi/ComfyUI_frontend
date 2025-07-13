@@ -2,6 +2,7 @@ import { LGraphNode } from '@comfyorg/litegraph'
 import { Ref, ref, watch } from 'vue'
 
 import Load3d from '@/extensions/core/load3d/Load3d'
+import Load3dUtils from '@/extensions/core/load3d/Load3dUtils'
 import { CameraType } from '@/extensions/core/load3d/interfaces'
 import { t } from '@/i18n'
 import { useLoad3dService } from '@/services/load3dService'
@@ -14,6 +15,7 @@ interface Load3dEditorState {
   fov: number
   lightIntensity: number
   cameraState: any
+  backgroundImage: string
 }
 
 export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
@@ -22,6 +24,8 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
   const cameraType = ref<CameraType>('perspective')
   const fov = ref(75)
   const lightIntensity = ref(1)
+  const backgroundImage = ref('')
+  const hasBackgroundImage = ref(false)
 
   let load3d: Load3d | null = null
   let sourceLoad3d: Load3d | null = null
@@ -32,7 +36,8 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     cameraType: 'perspective',
     fov: 75,
     lightIntensity: 1,
-    cameraState: null
+    cameraState: null,
+    backgroundImage: ''
   })
 
   watch(backgroundColor, (newColor) => {
@@ -95,7 +100,21 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     }
   })
 
-  const initializeEditor = (containerRef: HTMLElement, source: Load3d) => {
+  watch(backgroundImage, async (newValue) => {
+    if (!load3d) return
+    try {
+      await load3d.setBackgroundImage(newValue)
+      hasBackgroundImage.value = !!newValue
+    } catch (error) {
+      console.error('Error updating background image:', error)
+      useToastStore().addAlert(t('toastMessages.failedToUpdateBackgroundImage'))
+    }
+  })
+
+  const initializeEditor = async (
+    containerRef: HTMLElement,
+    source: Load3d
+  ) => {
     if (!containerRef) return
 
     sourceLoad3d = source
@@ -103,7 +122,7 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     try {
       load3d = new Load3d(containerRef, { node: node.value })
 
-      useLoad3dService().copyLoad3dState(source, load3d)
+      await useLoad3dService().copyLoad3dState(source, load3d)
 
       const sourceCameraType = source.getCurrentCameraType()
       const sourceCameraState = source.getCameraState()
@@ -112,6 +131,20 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
       backgroundColor.value = source.sceneManager.currentBackgroundColor
       showGrid.value = source.sceneManager.gridHelper.visible
       lightIntensity.value = source.lightingManager.lights[1]?.intensity || 1
+
+      const backgroundInfo = source.sceneManager.getCurrentBackgroundInfo()
+      if (
+        backgroundInfo.type === 'image' &&
+        node.value.properties['Background Image']
+      ) {
+        backgroundImage.value = node.value.properties[
+          'Background Image'
+        ] as string
+        hasBackgroundImage.value = true
+      } else {
+        backgroundImage.value = ''
+        hasBackgroundImage.value = false
+      }
 
       if (sourceCameraType === 'perspective') {
         fov.value = source.cameraManager.perspectiveCamera.fov
@@ -123,7 +156,8 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
         cameraType: cameraType.value,
         fov: fov.value,
         lightIntensity: lightIntensity.value,
-        cameraState: sourceCameraState
+        cameraState: sourceCameraState,
+        backgroundImage: backgroundImage.value
       }
     } catch (error) {
       console.error('Error initializing Load3d editor:', error)
@@ -169,13 +203,13 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
       nodeValue.properties['Light Intensity'] =
         initialState.value.lightIntensity
       nodeValue.properties['Camera Info'] = initialState.value.cameraState
+      nodeValue.properties['Background Image'] =
+        initialState.value.backgroundImage
     }
   }
 
-  const applyChanges = () => {
+  const applyChanges = async () => {
     if (!sourceLoad3d || !load3d) return false
-
-    useLoad3dService().copyLoad3dState(load3d, sourceLoad3d)
 
     const editorCameraState = load3d.getCameraState()
     const nodeValue = node.value
@@ -187,6 +221,13 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
       nodeValue.properties['FOV'] = fov.value
       nodeValue.properties['Light Intensity'] = lightIntensity.value
       nodeValue.properties['Camera Info'] = editorCameraState
+      nodeValue.properties['Background Image'] = backgroundImage.value
+    }
+
+    await useLoad3dService().copyLoad3dState(load3d, sourceLoad3d)
+
+    if (backgroundImage.value) {
+      await sourceLoad3d.setBackgroundImage(backgroundImage.value)
     }
 
     sourceLoad3d.forceRender()
@@ -202,6 +243,32 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     useLoad3dService().handleViewportRefresh(load3d)
   }
 
+  const handleBackgroundImageUpdate = async (file: File | null) => {
+    if (!file) {
+      backgroundImage.value = ''
+      hasBackgroundImage.value = false
+      return
+    }
+
+    try {
+      const resourceFolder =
+        (node.value.properties['Resource Folder'] as string) || ''
+      const subfolder = resourceFolder.trim()
+        ? `3d/${resourceFolder.trim()}`
+        : '3d'
+
+      const uploadPath = await Load3dUtils.uploadFile(file, subfolder)
+
+      if (uploadPath) {
+        backgroundImage.value = uploadPath
+        hasBackgroundImage.value = true
+      }
+    } catch (error) {
+      console.error('Error uploading background image:', error)
+      useToastStore().addAlert(t('toastMessages.failedToUploadBackgroundImage'))
+    }
+  }
+
   const cleanup = () => {
     load3d?.remove()
     load3d = null
@@ -215,6 +282,8 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     cameraType,
     fov,
     lightIntensity,
+    backgroundImage,
+    hasBackgroundImage,
 
     // Methods
     initializeEditor,
@@ -225,6 +294,7 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     restoreInitialState,
     applyChanges,
     refreshViewport,
+    handleBackgroundImageUpdate,
     cleanup
   }
 }

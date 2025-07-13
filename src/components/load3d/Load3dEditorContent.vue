@@ -39,6 +39,8 @@
           <SceneControls
             v-model:background-color="editor.backgroundColor.value"
             v-model:show-grid="editor.showGrid.value"
+            :has-background-image="editor.hasBackgroundImage.value"
+            @update-background-image="editor.handleBackgroundImageUpdate"
           />
         </div>
 
@@ -130,7 +132,7 @@ const activePanelTitle = computed(() => {
 onMounted(async () => {
   const source = useLoad3dService().getLoad3d(props.node)
   if (source && containerRef.value) {
-    editor.initializeEditor(containerRef.value, source)
+    await editor.initializeEditor(containerRef.value, source)
   }
 
   if (editorContentRef.value) {
@@ -165,8 +167,9 @@ const handleCancel = () => {
   useDialogStore().closeDialog()
 }
 
-const handleConfirm = () => {
-  if (!editor.applyChanges()) {
+const handleConfirm = async () => {
+  const success = await editor.applyChanges()
+  if (!success) {
     editor.restoreInitialState()
   }
 

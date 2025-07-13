@@ -127,7 +127,7 @@ export class Load3dService {
     this.pendingCallbacks.clear()
   }
 
-  copyLoad3dState(source: Load3d, target: Load3d | Load3dAnimation) {
+  async copyLoad3dState(source: Load3d, target: Load3d | Load3dAnimation) {
     const sourceModel = source.modelManager.currentModel
 
     if (sourceModel) {
@@ -160,6 +160,19 @@ export class Load3dService {
     target.setBackgroundColor(source.getSceneManager().currentBackgroundColor)
 
     target.toggleGrid(source.getSceneManager().gridHelper.visible)
+
+    const sourceBackgroundInfo = source
+      .getSceneManager()
+      .getCurrentBackgroundInfo()
+    if (sourceBackgroundInfo.type === 'image') {
+      const sourceNode = this.getNodeByLoad3d(source)
+      const backgroundPath = sourceNode?.properties?.[
+        'Background Image'
+      ] as string
+      if (backgroundPath) {
+        await target.setBackgroundImage(backgroundPath)
+      }
+    }
 
     target.setLightIntensity(
       source.getLightingManager().lights[1]?.intensity || 1
