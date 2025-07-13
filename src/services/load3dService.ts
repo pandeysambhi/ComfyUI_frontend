@@ -181,6 +181,11 @@ export class Load3dService {
     if (sourceCameraType === 'perspective') {
       target.setFOV(source.getCameraManager().perspectiveCamera.fov)
     }
+
+    const sourceNode = this.getNodeByLoad3d(source)
+    if (sourceNode?.properties?.['Edge Threshold']) {
+      target.setEdgeThreshold(sourceNode.properties['Edge Threshold'] as number)
+    }
   }
 
   handleViewportRefresh(load3d: Load3d | null) {

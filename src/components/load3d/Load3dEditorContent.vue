@@ -44,6 +44,13 @@
           />
         </div>
 
+        <div v-show="activePanel === 'model'" class="space-y-4">
+          <ModelControls
+            v-model:up-direction="editor.upDirection.value"
+            v-model:material-mode="editor.materialMode.value"
+          />
+        </div>
+
         <div v-show="activePanel === 'camera'" class="space-y-4">
           <CameraControls
             v-model:camera-type="editor.cameraType.value"
@@ -89,6 +96,7 @@ import { computed, onBeforeUnmount, onMounted, ref, toRef } from 'vue'
 import CameraControls from '@/components/load3d/controls/editor/CameraControls.vue'
 import ExportControls from '@/components/load3d/controls/editor/ExportControls.vue'
 import LightControls from '@/components/load3d/controls/editor/LightControls.vue'
+import ModelControls from '@/components/load3d/controls/editor/ModelControls.vue'
 import SceneControls from '@/components/load3d/controls/editor/SceneControls.vue'
 import { useLoad3dEditor } from '@/composables/useLoad3dEditor'
 import { t } from '@/i18n'
@@ -104,6 +112,7 @@ const props = defineProps<{
 const activePanel = ref('scene')
 const menuItems = [
   { id: 'scene', icon: 'pi pi-image', title: t('load3d.editor.sceneSettings') },
+  { id: 'model', icon: 'pi pi-box', title: t('load3d.editor.modelSettings') },
   {
     id: 'camera',
     icon: 'pi pi-camera',

@@ -3,7 +3,11 @@ import { Ref, ref, watch } from 'vue'
 
 import Load3d from '@/extensions/core/load3d/Load3d'
 import Load3dUtils from '@/extensions/core/load3d/Load3dUtils'
-import { CameraType } from '@/extensions/core/load3d/interfaces'
+import {
+  CameraType,
+  MaterialMode,
+  UpDirection
+} from '@/extensions/core/load3d/interfaces'
 import { t } from '@/i18n'
 import { useLoad3dService } from '@/services/load3dService'
 import { useToastStore } from '@/stores/toastStore'
@@ -16,6 +20,9 @@ interface Load3dEditorState {
   lightIntensity: number
   cameraState: any
   backgroundImage: string
+  upDirection: UpDirection
+  materialMode: MaterialMode
+  edgeThreshold: number
 }
 
 export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
@@ -26,6 +33,9 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
   const lightIntensity = ref(1)
   const backgroundImage = ref('')
   const hasBackgroundImage = ref(false)
+  const upDirection = ref<UpDirection>('original')
+  const materialMode = ref<MaterialMode>('original')
+  const edgeThreshold = ref(85)
 
   let load3d: Load3d | null = null
   let sourceLoad3d: Load3d | null = null
@@ -37,7 +47,10 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     fov: 75,
     lightIntensity: 1,
     cameraState: null,
-    backgroundImage: ''
+    backgroundImage: '',
+    upDirection: 'original',
+    materialMode: 'original',
+    edgeThreshold: 85
   })
 
   watch(backgroundColor, (newColor) => {
@@ -111,6 +124,42 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     }
   })
 
+  watch(upDirection, (newValue) => {
+    if (!load3d) return
+    try {
+      load3d.setUpDirection(newValue)
+    } catch (error) {
+      console.error('Error updating up direction:', error)
+      useToastStore().addAlert(
+        t('toastMessages.failedToUpdateUpDirection', { direction: newValue })
+      )
+    }
+  })
+
+  watch(materialMode, (newValue) => {
+    if (!load3d) return
+    try {
+      load3d.setMaterialMode(newValue)
+    } catch (error) {
+      console.error('Error updating material mode:', error)
+      useToastStore().addAlert(
+        t('toastMessages.failedToUpdateMaterialMode', { mode: newValue })
+      )
+    }
+  })
+
+  watch(edgeThreshold, (newValue) => {
+    if (!load3d) return
+    try {
+      load3d.setEdgeThreshold(Number(newValue))
+    } catch (error) {
+      console.error('Error updating edge threshold:', error)
+      useToastStore().addAlert(
+        t('toastMessages.failedToUpdateEdgeThreshold', { threshold: newValue })
+      )
+    }
+  })
+
   const initializeEditor = async (
     containerRef: HTMLElement,
     source: Load3d
@@ -150,6 +199,11 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
         fov.value = source.cameraManager.perspectiveCamera.fov
       }
 
+      upDirection.value = source.modelManager.currentUpDirection
+      materialMode.value = source.modelManager.materialMode
+      edgeThreshold.value =
+        (node.value.properties['Edge Threshold'] as number) || 85
+
       initialState.value = {
         backgroundColor: backgroundColor.value,
         showGrid: showGrid.value,
@@ -157,7 +211,10 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
         fov: fov.value,
         lightIntensity: lightIntensity.value,
         cameraState: sourceCameraState,
-        backgroundImage: backgroundImage.value
+        backgroundImage: backgroundImage.value,
+        upDirection: upDirection.value,
+        materialMode: materialMode.value,
+        edgeThreshold: edgeThreshold.value
       }
     } catch (error) {
       console.error('Error initializing Load3d editor:', error)
@@ -284,6 +341,9 @@ export const useLoad3dEditor = (node: Ref<LGraphNode>) => {
     lightIntensity,
     backgroundImage,
     hasBackgroundImage,
+    upDirection,
+    materialMode,
+    edgeThreshold,
 
     // Methods
     initializeEditor,

@@ -1399,6 +1399,9 @@
       "depth": "Depth",
       "lineart": "Lineart"
     },
+    "upDirections": {
+      "original": "Original"
+    },
     "startRecording": "Start Recording",
     "stopRecording": "Stop Recording",
     "exportRecording": "Export Recording",
@@ -1417,7 +1420,8 @@
       "sceneSettings": "Scene Settings",
       "cameraSettings": "Camera Settings",
       "lightSettings": "Light Settings",
-      "exportSettings": "Export Settings"
+      "exportSettings": "Export Settings",
+      "modelSettings": "Model Settings"
     }
   },
   "toastMessages": {
