@@ -7,10 +7,7 @@
   >
   </Select>
 
-  <Button
-    class="p-button-rounded p-button-text"
-    @click="exportModel(exportFormat)"
-  >
+  <Button severity="secondary" text rounded @click="exportModel(exportFormat)">
     {{ t('load3d.export') }}
   </Button>
 </template>
