@@ -563,6 +563,7 @@
       "cancel": "Отмена",
       "exportSettings": "Настройки экспорта",
       "lightSettings": "Настройки освещения",
+      "modelSettings": "Настройки модели",
       "sceneSettings": "Настройки сцены",
       "title": "3D редактор (Бета)"
     },
@@ -594,6 +595,9 @@
     "switchCamera": "Переключить камеру",
     "switchingMaterialMode": "Переключение режима материала...",
     "upDirection": "Направление Вверх",
+    "upDirections": {
+      "original": "Оригинал"
+    },
     "uploadBackgroundImage": "Загрузить фоновое изображение",
     "uploadTexture": "Загрузить текстуру"
   },

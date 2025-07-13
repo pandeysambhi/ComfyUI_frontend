@@ -563,6 +563,7 @@
       "cancel": "Annuler",
       "exportSettings": "Paramètres d’exportation",
       "lightSettings": "Paramètres de l’éclairage",
+      "modelSettings": "Paramètres du modèle",
       "sceneSettings": "Paramètres de la scène",
       "title": "Éditeur 3D (Bêta)"
     },
@@ -594,6 +595,9 @@
     "switchCamera": "Changer de caméra",
     "switchingMaterialMode": "Changement de mode de matériau...",
     "upDirection": "Direction Haut",
+    "upDirections": {
+      "original": "Original"
+    },
     "uploadBackgroundImage": "Télécharger l'image de fond",
     "uploadTexture": "Télécharger Texture"
   },

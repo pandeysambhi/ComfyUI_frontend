@@ -563,6 +563,7 @@
       "cancel": "取消",
       "exportSettings": "匯出設定",
       "lightSettings": "灯光设置",
+      "modelSettings": "模型設定",
       "sceneSettings": "场景设置",
       "title": "3D编辑器（测试版）"
     },
@@ -594,6 +595,9 @@
     "switchCamera": "切换摄影机类型",
     "switchingMaterialMode": "切换材质模式中...",
     "upDirection": "上方向",
+    "upDirections": {
+      "original": "原始"
+    },
     "uploadBackgroundImage": "上传背景图片",
     "uploadTexture": "上传纹理"
   },
