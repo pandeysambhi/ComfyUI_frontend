@@ -4,9 +4,11 @@ import { toRaw } from 'vue'
 
 import { t } from '@/i18n'
 import { ComfyWorkflowJSON } from '@/schemas/comfyWorkflowSchema'
+import { api } from '@/scripts/api'
 import { app } from '@/scripts/app'
 import { blankGraph, defaultGraph } from '@/scripts/defaultGraph'
 import { downloadBlob } from '@/scripts/utils'
+import { TaskItemImpl } from '@/stores/queueStore'
 import { useSettingStore } from '@/stores/settingStore'
 import { useToastStore } from '@/stores/toastStore'
 import { ComfyWorkflow, useWorkflowStore } from '@/stores/workflowStore'
@@ -148,6 +150,32 @@ export const useWorkflowService = () => {
    */
   const loadBlankWorkflow = async () => {
     await app.loadGraphData(blankGraph)
+  }
+
+  /**
+   * Load a workflow from a task item (queue/history)
+   * For history items, fetches workflow data from /history_v2/{prompt_id}
+   * @param task The task item to load the workflow from
+   */
+  const loadTaskWorkflow = async (task: TaskItemImpl) => {
+    let workflowData = task.workflow
+
+    // History items don't include workflow data - fetch from API
+    if (task.isHistory) {
+      const promptId = task.prompt.prompt_id
+      if (promptId) {
+        workflowData = (await api.getWorkflowFromHistory(promptId)) || undefined
+      }
+    }
+
+    if (!workflowData) {
+      return
+    }
+
+    await app.loadGraphData(toRaw(workflowData))
+    if (task.outputs) {
+      app.nodeOutputs = toRaw(task.outputs)
+    }
   }
 
   /**
@@ -396,6 +424,7 @@ export const useWorkflowService = () => {
     saveWorkflow,
     loadDefaultWorkflow,
     loadBlankWorkflow,
+    loadTaskWorkflow,
     reloadCurrentWorkflow,
     openWorkflow,
     closeWorkflow,
